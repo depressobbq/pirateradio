@@ -70,14 +70,6 @@ Type `help` inside your node terminal to view available management actions:
 
 ---
 
-## 🛠️ Running Tests
-Verify all workspace unit tests and integration suites:
-```bash
-cargo test --workspace
-```
-
----
-
 ## Contributing
 
 We welcome contributions from anyone who believes in a free, grass-roots, and resilient internet. Please check out [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
