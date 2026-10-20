@@ -1,35 +1,98 @@
-# 🏴‍☠️ Pirate Radio
 
-> **The Unstoppable, Offline-First P2P Web Protocol**  
-> *"Tune in, seed back, stay online."*
+🏴‍☠️ Pirate Radio
 
-Pirate Radio is a transport-agnostic, delay-tolerant peer-to-peer network designed to make websites and media impossible to censor or permanently take down. As long as a single copy of a file exists on a local hard drive, a USB flash drive, or a low-power radio link, it can be served, verified, and re-seeded into the global mesh.
+    The Unstoppable, Offline-First P2P Web Gateway
 
----
+    "Tune in, seed back, stay online."
 
-## Key Features
+Pirate Radio is a transport-agnostic, censorship-resistant peer-to-peer network designed to make websites and media impossible to take down. By combining lightweight Proof-of-Work PNS (Pirate Name Service) metadata gossip with on-demand, pull-based block retrieval over an automated TCP mesh, Pirate Radio ensures that once a site is published, it lives on anywhere a node cares to cache and pin it.
+🌟 Key Architecture Features
 
-* **`pirate://` Cryptographic Addressing:** Sites are identified by public key pairs, using signed append-only Merkle DAGs for updates rather than fragile static hashes.
-* **Transport-Agnostic Engine:** Operates seamlessly across TCP/IP, ad-hoc local Wi-Fi, Bluetooth LE, audio voice modems, and physical USB "Sneakernet" bundles.
-* **Offline-First "BBS" Spooling:** Browse, post, and update content offline. Outgoing actions queue into a local spool and sync automatically when any connection is made.
-* **Smart LRU & Pinning Cache:** Configurable local storage limits auto-evict least-recently-used transient media while allowing users to permanently pin media.
-* **Version Timelines:** Historical revisions are preserved side-by-side using content-addressable blocks, allowing "lost media" to be restored without corrupting new states.
+    Pirate Name Service (PNS): Decentralized handle claims verified via cryptographic keys and propagated automatically across active mesh peers without central DNS registrars.
 
----
+    Pull-Based Mesh Distribution: Nodes exchange lightweight name claims rather than dumping bulk data globally. Content blocks are fetched on-demand by local node gateways only when requested.
 
-## Repository Structure
+    Smart LRU & Permanent Pinning: Configurable local SQLite storage (default 1 GB) automatically manages transient media via LRU eviction, while giving users interactive CLI tools (pin / unpin) to permanently anchor critical web assets against deletion.
 
-* `src/block/` — Content-addressing, hashing (BLAKE3), and cryptographic signature verification.
-* `src/storage/` — Local SQLite state store, chunk compression, and LRU cache manager.
-* `src/transport/` — Pluggable transport adapter interface (Sockets, USB Auto-Ingress, Audio Modems).
-* `src/sync/` — Outbound message spooler and CRDT conflict-free merge engine.
+    Zero-Config Local Discovery: Built-in UDP background beacons automatically discover adjacent local swarm nodes and sync active handle claims instantly.
 
----
+    Local Browser Gateway: Every node runs an embedded Axum HTTP server (http://localhost:8080/<handle>), rendering decentralized HTML assets natively in any standard browser.
 
-## Contributing
+    Sneakernet & Multi-Transport Support: Pluggable adapters designed to support everything from TCP/IP mesh networks to physical file drops (./radio_in and ./site_in).
 
-We welcome contributions from anyone who believes in a free, grass-roots, and resilient internet. Please check out [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
+🗂️ Workspace Crate Structure
 
-## License
+Pirate Radio is organized as a modular Cargo workspace:
 
-Distributed under the [GNU General Public License v3.0](LICENSE).
+    pirate-block/ — Content-addressing, BLAKE3/SHA hashing, and cryptographic signature verification.
+
+    pirate-identity/ — Key generation, persistent keypair recovery (node_identity.key), and node ID formatting.
+
+    pirate-pns/ — Proof-of-Work name claim generation, validation, and distributed registry.
+
+    pirate-storage/ — Local SQLite vault state store (pirate_node_vault.db), block persistence, and LRU eviction logic.
+
+    pirate-sync/ — Vector clocks, conflict-free state tracking, and DHT bridge routing.
+
+    pirate-transport/ — TCP transport adapter, background UDP auto-discovery beacons, and physical file scanners.
+
+    pirate-integrations/ — Core integration hooks and cross-module utilities.
+
+    pirate-radio (Binary Root) — Axum web gateway, interactive CLI management console, and file watchers.
+
+🚀 Quickstart Guide
+1. Build the Workspace
+
+Ensure you have Rust and Cargo installed, then compile the project:
+Bash
+
+cargo build --release
+
+2. Launch Primary Node
+
+Run your first node. It will automatically generate an identity keypair, bind an available TCP transport port (e.g., 9001), and spin up a local web gateway (e.g., [http://127.0.0.1:8080](http://127.0.0.1:8080)).
+Bash
+
+cargo run
+
+3. Publish a Website
+
+Drop any standard HTML, CSS, or JS file into the ./site_in/ directory:
+Bash
+
+echo "<h1>Sovereign P2P Web Active</h1>" > ./site_in/index.html
+
+The node will automatically ingest the asset into its local vault, link it to your node's PNS handle, and broadcast the claim announcement to the mesh.
+4. Connect a Secondary Node & Browse
+
+In a separate terminal, launch a second node:
+Bash
+
+cargo run
+
+It will automatically discover the first node via local UDP/TCP discovery, sync the PNS handle claim, and allow you to view the site through its own gateway port ([http://127.0.0.1:8081/](http://127.0.0.1:8081/)<your-handle>). When requested, the secondary node pulls the content block on-demand over the mesh and caches it locally.
+5. Interactive CLI Commands
+
+Type help inside your node terminal to view available management actions:
+
+    status — Display your active node handle and cryptographic ID.
+
+    pin <handle> — Permanently lock a site's content block into your local vault, making it immune to LRU cache eviction.
+
+    unpin <handle> — Return a pinned site block to standard LRU management.
+
+    exit / quit — Gracefully shut down the node.
+
+🛠️ Running Tests
+
+Verify all workspace unit tests and integration suites:
+Bash
+
+cargo test --workspace
+
+Contributing
+
+We welcome contributions from anyone who believes in a free, grass-roots, and resilient internet. Please check out CONTRIBUTING.md to get started.
+License
+
+Distributed under the GNU General Public License v3.0.
